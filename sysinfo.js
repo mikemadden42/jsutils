@@ -1,7 +1,7 @@
 'use strict';
 
-var os = require('os');
-var dns = require('dns');
+const os = require('os');
+const dns = require('dns');
 
 console.log("architecture: " + os.arch());
 console.log("endianness: " + os.endianness());
