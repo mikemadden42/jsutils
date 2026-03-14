@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-const os = require('os');
-const dns = require('dns');
+const os = require("os");
+const dns = require("dns");
 
 console.log("architecture: " + os.arch());
 console.log("endianness: " + os.endianness());
@@ -21,13 +21,13 @@ for (const server of dns.getServers()) {
 
 console.log("cpus: " + os.cpus().length);
 for (const core of os.cpus()) {
-  console.log("core: " + core.model)
+  console.log("core: " + core.model);
 }
 
-var nets = os.networkInterfaces()
+var nets = os.networkInterfaces();
 for (const name of Object.keys(nets)) {
   console.log(`net: ${name}`);
   for (const net of nets[name]) {
-    console.log("\t", net.address, net.mac)
+    console.log("\t", net.address, net.mac);
   }
 }
