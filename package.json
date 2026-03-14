@@ -1,0 +1,24 @@
+{
+  "name": "jsutils",
+  "version": "1.0.0",
+  "description": "JS Utils",
+  "keywords": [
+    "javascript"
+  ],
+  "homepage": "https://github.com/mikemadden42/jsutils",
+  "bugs": {
+    "url": "https://github.com/mikemadden42/jsutils/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikemadden42/jsutils.git"
+  },
+  "license": "MIT",
+  "author": "Michael Madden",
+  "type": "commonjs",
+  "main": "sysinfo.js",
+  "scripts": {
+    "start": "node sysinfo.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
