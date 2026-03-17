@@ -1,36 +1,12 @@
 #!/usr/bin/env node
+"use strict";
 
-/**
- * Node.js CLI Application: Random Password Generator
- *
- * This script generates a random password based on user-defined criteria.
- *
- * Usage:
- * node password-gen.js [options]
- * ./password-gen.js [options] (after making it executable)
- *
- * Options:
- * -l, --length <number>    Specify the password length (default: 12)
- * -n, --no-numbers         Exclude numbers from the password
- * -s, --no-symbols         Exclude symbols from the password
- * -u, --no-uppercase       Exclude uppercase letters from the password
- * -w, --no-lowercase       Exclude lowercase letters from the password
- * -h, --help               Display help information
- *
- * Example:
- * node password-gen.js
- * node password-gen.js -l 20
- * node password-gen.js --length 16 --no-symbols --no-numbers
- * ./password-gen.js -l 10 -w -u
- */
-
-const crypto = require("crypto"); // Used for generating cryptographically strong random bytes
-const process = require("process"); // Provides access to command line arguments and process information
+const crypto = require("crypto");
 
 // --- Configuration and Character Sets ---
 const DEFAULT_PASSWORD_LENGTH = 12;
 const MIN_PASSWORD_LENGTH = 4;
-const MAX_PASSWORD_LENGTH = 128; // Practical limit
+const MAX_PASSWORD_LENGTH = 128;
 
 const CHAR_SETS = {
   lowercase: "abcdefghijklmnopqrstuvwxyz",
@@ -50,7 +26,6 @@ function parseArgs(args) {
     showHelp: false,
   };
 
-  // Iterate through arguments starting from the third element (node executable, script name, then args)
   for (let i = 2; i < args.length; i++) {
     const arg = args[i];
 
@@ -67,7 +42,7 @@ function parseArgs(args) {
             options.length = len;
           } else {
             console.error(
-              `Error: Invalid length specified. Must be a number between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH}.`,
+              `Error: Invalid length specified. Must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH}.`,
             );
             process.exit(1);
           }
@@ -111,7 +86,6 @@ function showHelp() {
   console.log(`
 Usage:
   node ${process.argv[1]} [options]
-  ./${process.argv[1].split("/").pop()} [options] (after making it executable)
 
 Options:
   -l, --length <number>    Specify the password length (default: ${DEFAULT_PASSWORD_LENGTH})
@@ -127,100 +101,69 @@ Options:
 // --- Password Generation Logic ---
 function generatePassword(options) {
   let allowedChars = "";
-  const requiredChars = []; // To ensure at least one of each included type
+  const passwordArr = []; // Keep as an array for easier handling
 
   if (options.includeLowercase) {
     allowedChars += CHAR_SETS.lowercase;
-    requiredChars.push(getRandomChar(CHAR_SETS.lowercase));
+    passwordArr.push(getRandomChar(CHAR_SETS.lowercase));
   }
   if (options.includeUppercase) {
     allowedChars += CHAR_SETS.uppercase;
-    requiredChars.push(getRandomChar(CHAR_SETS.uppercase));
+    passwordArr.push(getRandomChar(CHAR_SETS.uppercase));
   }
   if (options.includeNumbers) {
     allowedChars += CHAR_SETS.numbers;
-    requiredChars.push(getRandomChar(CHAR_SETS.numbers));
+    passwordArr.push(getRandomChar(CHAR_SETS.numbers));
   }
   if (options.includeSymbols) {
     allowedChars += CHAR_SETS.symbols;
-    requiredChars.push(getRandomChar(CHAR_SETS.symbols));
+    passwordArr.push(getRandomChar(CHAR_SETS.symbols));
   }
 
   if (allowedChars.length === 0) {
-    console.error(
-      "Error: No character sets selected. Please include at least one type (e.g., lowercase, numbers).",
+    throw new Error(
+      "No character sets selected. Please include at least one type.",
     );
-    process.exit(1);
   }
 
-  // Adjust length to accommodate required characters if any options exclude character types
-  const finalLength = Math.max(options.length, requiredChars.length);
+  const finalLength = Math.max(options.length, passwordArr.length);
   if (finalLength > MAX_PASSWORD_LENGTH) {
-    console.error(
-      `Error: Resulting password length (${finalLength}) exceeds maximum allowed length (${MAX_PASSWORD_LENGTH}).`,
+    throw new Error(
+      `Resulting password length (${finalLength}) exceeds maximum allowed length (${MAX_PASSWORD_LENGTH}).`,
     );
-    process.exit(1);
   }
 
-  let password = "";
-  // Add required characters first to ensure diversity
-  password = requiredChars.join("");
-
-  // Fill the rest of the password length
-  for (let i = password.length; i < finalLength; i++) {
-    password += getRandomChar(allowedChars);
+  // Fill the rest of the array up to the requested length
+  for (let i = passwordArr.length; i < finalLength; i++) {
+    passwordArr.push(getRandomChar(allowedChars));
   }
 
-  // Shuffle the password to randomize the position of required characters
-  return shuffleString(password);
+  // Shuffle the array and return as a string
+  return shuffleArray(passwordArr).join("");
 }
 
-/**
- * Returns a cryptographically secure random character from the given string.
- * @param {string} charSet The string of characters to choose from.
- * @returns {string} A single random character.
- */
+// Replaced manual math with crypto.randomInt
 function getRandomChar(charSet) {
-  if (charSet.length === 0) {
-    return "";
-  }
-  // Generate a random byte, map it to an index within the character set.
-  // Use modulo to ensure the index is within bounds, and loop if the random byte
-  // results in an index outside a perfect distribution to avoid bias.
-  const max = 256 - (256 % charSet.length);
-  let randomByte;
-  do {
-    randomByte = crypto.randomBytes(1)[0];
-  } while (randomByte >= max);
-  return charSet[randomByte % charSet.length];
+  if (charSet.length === 0) return "";
+  return charSet[crypto.randomInt(0, charSet.length)];
 }
 
-/**
- * Shuffles a string using the Fisher-Yates (Knuth) algorithm.
- * @param {string} str The string to shuffle.
- * @returns {string} The shuffled string.
- */
-function shuffleString(str) {
-  const arr = str.split("");
+// Replaced Math.floor and division with crypto.randomInt to fix tiny bias
+function shuffleArray(arr) {
   let currentIndex = arr.length;
-  let randomIndex;
 
-  // While there remain elements to shuffle.
   while (currentIndex !== 0) {
-    // Pick a remaining element.
-    // Use crypto.randomBytes for secure randomness.
-    // Convert a random byte to a float between 0 and 1, then scale.
-    randomIndex = Math.floor((crypto.randomBytes(1)[0] / 256) * currentIndex);
+    const randomIndex = crypto.randomInt(0, currentIndex);
     currentIndex--;
 
-    // And swap it with the current element.
+    // Swap
     [arr[currentIndex], arr[randomIndex]] = [
       arr[randomIndex],
       arr[currentIndex],
     ];
   }
 
-  return arr.join("");
+  return arr;
 }
 
 // --- Main Execution ---
@@ -232,30 +175,15 @@ async function main() {
     process.exit(0);
   }
 
-  // Basic validation for character sets
-  if (
-    !options.includeLowercase &&
-    !options.includeUppercase &&
-    !options.includeNumbers &&
-    !options.includeSymbols
-  ) {
-    console.error(
-      "Error: At least one character type (lowercase, uppercase, numbers, or symbols) must be included.",
-    );
-    showHelp();
-    process.exit(1);
-  }
-
   try {
     const password = generatePassword(options);
     console.log(`Generated Password: ${password}`);
   } catch (error) {
-    console.error(`An unexpected error occurred: ${error.message}`);
+    console.error(`Error: ${error.message}`);
     process.exit(1);
   }
 }
 
-// Run the main function
 if (require.main === module) {
   main();
 }
