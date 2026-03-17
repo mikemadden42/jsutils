@@ -1,17 +1,23 @@
 "use strict";
 
-const timeRatio = 1000 * 60 * 60 * 24;
-var floor = Math.floor,
-  abs = Math.abs;
-var daysBetween = (d1, d2) =>
-  floor(abs(new Date(d1) - new Date(d2)) / timeRatio);
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-const date = new Date();
-let day = date.getDate();
-let month = date.getMonth() + 1;
-let year = date.getFullYear();
+// Helper function to lock any date to midnight UTC
+function getUTCMidnight(dateInput) {
+  const d = new Date(dateInput);
 
-console.log(
-  "diff: %s days",
-  daysBetween("2020-07-06", `${year}-${month}-${day}`),
-);
+  // Date.UTC() creates a pure timestamp, completely ignoring local timezones
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+
+const daysBetween = (d1, d2) => {
+  const utc1 = getUTCMidnight(d1);
+  const utc2 = getUTCMidnight(d2);
+
+  // Because both are strict UTC midnights, this divides perfectly.
+  // Math.floor is completely safe to use here.
+  return Math.floor(Math.abs(utc1 - utc2) / MS_PER_DAY);
+};
+
+// Test it out with your original date and "today"
+console.log("diff: %s days", daysBetween("2020-07-06", new Date()));
