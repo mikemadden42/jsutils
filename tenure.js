@@ -21,5 +21,21 @@ const daysBetween = (d1, d2) => {
   return Math.floor(Math.abs(utc1 - utc2) / MS_PER_DAY);
 };
 
-// Test it out with your original date and "today"
-console.log("diff: %s days", daysBetween("2020-07-06", new Date()));
+module.exports = { daysBetween, getUTCMidnight };
+
+// Get the target date from arguments or use the default
+if (require.main === module) {
+  const inputDate = process.argv[2] || "2020-07-06";
+  const targetDate = new Date(inputDate);
+
+  if (isNaN(targetDate.getTime())) {
+    console.error("Error: Invalid date format. Please use YYYY-MM-DD.");
+    process.exit(1);
+  }
+
+  console.log(
+    "Days since %s: %s days",
+    inputDate,
+    daysBetween(targetDate, new Date()),
+  );
+}

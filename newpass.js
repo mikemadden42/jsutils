@@ -2,6 +2,7 @@
 "use strict";
 
 const crypto = require("crypto");
+const path = require("path");
 
 // --- Configuration and Character Sets ---
 const DEFAULT_PASSWORD_LENGTH = 12;
@@ -83,9 +84,10 @@ function parseArgs(args) {
 
 // --- Display Help Message ---
 function showHelp() {
+  const scriptName = path.basename(process.argv[1]);
   console.log(`
 Usage:
-  node ${process.argv[1]} [options]
+  node ${scriptName} [options]
 
 Options:
   -l, --length <number>    Specify the password length (default: ${DEFAULT_PASSWORD_LENGTH})
@@ -165,6 +167,8 @@ function shuffleArray(arr) {
 
   return arr;
 }
+
+module.exports = { generatePassword };
 
 // --- Main Execution ---
 async function main() {

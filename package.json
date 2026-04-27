@@ -22,6 +22,6 @@
     "sysinfo": "node sysinfo.js",
     "tenure": "node tenure.js",
     "run-all": "node newpass.js && node sysinfo.js && node tenure.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/tenure.test.js && node tests/newpass.test.js"
   }
 }

@@ -56,8 +56,12 @@ try {
 console.log("----------------------------------------");
 
 // --- Network & DNS ---
-for (const server of dns.getServers()) {
-  console.log(`DNS server: ${server}`);
+try {
+  for (const server of dns.getServers()) {
+    console.log(`DNS server: ${server}`);
+  }
+} catch (error) {
+  console.log("DNS servers: Information unavailable");
 }
 
 const nets = os.networkInterfaces();
