@@ -73,10 +73,10 @@ function parseArgs(args) {
         options.showHelp = true;
         break;
       default:
-        console.warn(
-          `Warning: Unknown option "${arg}". Use -h or --help for usage.`,
+        console.error(
+          `Error: Unknown option "${arg}". Use -h or --help for usage.`,
         );
-        break;
+        process.exit(1);
     }
   }
   return options;
@@ -128,15 +128,18 @@ function generatePassword(options) {
     );
   }
 
-  const finalLength = Math.max(options.length, passwordArr.length);
-  if (finalLength > MAX_PASSWORD_LENGTH) {
+  if (options.length < passwordArr.length) {
     throw new Error(
-      `Resulting password length (${finalLength}) exceeds maximum allowed length (${MAX_PASSWORD_LENGTH}).`,
+      `Requested length (${options.length}) is less than the number of required character classes (${passwordArr.length}).`,
+    );
+  }
+  if (options.length > MAX_PASSWORD_LENGTH) {
+    throw new Error(
+      `Requested length (${options.length}) exceeds maximum allowed length (${MAX_PASSWORD_LENGTH}).`,
     );
   }
 
-  // Fill the rest of the array up to the requested length
-  for (let i = passwordArr.length; i < finalLength; i++) {
+  for (let i = passwordArr.length; i < options.length; i++) {
     passwordArr.push(getRandomChar(allowedChars));
   }
 
