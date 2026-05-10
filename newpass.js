@@ -6,7 +6,6 @@ const path = require("path");
 
 // --- Configuration and Character Sets ---
 const DEFAULT_PASSWORD_LENGTH = 12;
-const MIN_PASSWORD_LENGTH = 4;
 const MAX_PASSWORD_LENGTH = 128;
 
 const CHAR_SETS = {
@@ -24,6 +23,7 @@ function parseArgs(args) {
     includeUppercase: true,
     includeNumbers: true,
     includeSymbols: true,
+    quiet: false,
     showHelp: false,
   };
 
@@ -32,25 +32,29 @@ function parseArgs(args) {
 
     switch (arg) {
       case "-l":
-      case "--length":
-        if (i + 1 < args.length) {
-          const len = parseInt(args[++i], 10);
-          if (
-            !isNaN(len) &&
-            len >= MIN_PASSWORD_LENGTH &&
-            len <= MAX_PASSWORD_LENGTH
-          ) {
-            options.length = len;
-          } else {
-            console.error(
-              `Error: Invalid length specified. Must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH}.`,
-            );
-            process.exit(1);
-          }
-        } else {
+      case "--length": {
+        const raw = args[++i];
+        if (raw === undefined) {
           console.error("Error: --length or -l requires a number.");
           process.exit(1);
         }
+        if (!/^\d+$/.test(raw)) {
+          console.error(`Error: Invalid length "${raw}". Must be an integer.`);
+          process.exit(1);
+        }
+        const len = parseInt(raw, 10);
+        if (len < 1 || len > MAX_PASSWORD_LENGTH) {
+          console.error(
+            `Error: Length ${len} out of range. Must be between 1 and ${MAX_PASSWORD_LENGTH}.`,
+          );
+          process.exit(1);
+        }
+        options.length = len;
+        break;
+      }
+      case "-q":
+      case "--quiet":
+        options.quiet = true;
         break;
       case "-n":
       case "--no-numbers":
@@ -91,11 +95,13 @@ Usage:
 
 Options:
   -l, --length <number>    Specify the password length (default: ${DEFAULT_PASSWORD_LENGTH})
-                           Min: ${MIN_PASSWORD_LENGTH}, Max: ${MAX_PASSWORD_LENGTH}
+                           Min: 1, Max: ${MAX_PASSWORD_LENGTH}
+                           (must be >= number of included character classes)
   -n, --no-numbers         Exclude numbers (0-9)
-  -s, --no-symbols         Exclude symbols (!@#$%^&*()-_+=[]{}|;:,.<>?/~)
+  -s, --no-symbols         Exclude symbols (!@#$%^&*()-_+=[]{}|;:,.<>?/~\`)
   -u, --no-uppercase       Exclude uppercase letters (A-Z)
   -w, --no-lowercase       Exclude lowercase letters (a-z)
+  -q, --quiet              Print only the password (suitable for piping)
   -h, --help               Display this help message
 `);
 }
@@ -184,7 +190,7 @@ async function main() {
 
   try {
     const password = generatePassword(options);
-    console.log(`Generated Password: ${password}`);
+    console.log(options.quiet ? password : `Generated Password: ${password}`);
   } catch (error) {
     console.error(`Error: ${error.message}`);
     process.exit(1);
