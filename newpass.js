@@ -4,7 +4,6 @@
 const crypto = require("crypto");
 const path = require("path");
 
-// --- Configuration and Character Sets ---
 const DEFAULT_PASSWORD_LENGTH = 12;
 const MAX_PASSWORD_LENGTH = 128;
 
@@ -15,7 +14,6 @@ const CHAR_SETS = {
   symbols: "!@#$%^&*()-_+=[]{}|;:,.<>?/~`",
 };
 
-// --- Command Line Argument Parsing ---
 function parseArgs(args) {
   const options = {
     length: DEFAULT_PASSWORD_LENGTH,
@@ -35,19 +33,16 @@ function parseArgs(args) {
       case "--length": {
         const raw = args[++i];
         if (raw === undefined) {
-          console.error("Error: --length or -l requires a number.");
-          process.exit(1);
+          throw new Error("--length or -l requires a number.");
         }
         if (!/^\d+$/.test(raw)) {
-          console.error(`Error: Invalid length "${raw}". Must be an integer.`);
-          process.exit(1);
+          throw new Error(`Invalid length "${raw}". Must be an integer.`);
         }
         const len = parseInt(raw, 10);
         if (len < 1 || len > MAX_PASSWORD_LENGTH) {
-          console.error(
-            `Error: Length ${len} out of range. Must be between 1 and ${MAX_PASSWORD_LENGTH}.`,
+          throw new Error(
+            `Length ${len} out of range. Must be between 1 and ${MAX_PASSWORD_LENGTH}.`,
           );
-          process.exit(1);
         }
         options.length = len;
         break;
@@ -77,16 +72,14 @@ function parseArgs(args) {
         options.showHelp = true;
         break;
       default:
-        console.error(
-          `Error: Unknown option "${arg}". Use -h or --help for usage.`,
+        throw new Error(
+          `Unknown option "${arg}". Use -h or --help for usage.`,
         );
-        process.exit(1);
     }
   }
   return options;
 }
 
-// --- Display Help Message ---
 function showHelp() {
   const scriptName = path.basename(process.argv[1]);
   console.log(`
@@ -106,10 +99,9 @@ Options:
 `);
 }
 
-// --- Password Generation Logic ---
 function generatePassword(options) {
   let allowedChars = "";
-  const passwordArr = []; // Keep as an array for easier handling
+  const passwordArr = [];
 
   if (options.includeLowercase) {
     allowedChars += CHAR_SETS.lowercase;
@@ -149,17 +141,13 @@ function generatePassword(options) {
     passwordArr.push(getRandomChar(allowedChars));
   }
 
-  // Shuffle the array and return as a string
   return shuffleArray(passwordArr).join("");
 }
 
-// Replaced manual math with crypto.randomInt
 function getRandomChar(charSet) {
-  if (charSet.length === 0) return "";
   return charSet[crypto.randomInt(0, charSet.length)];
 }
 
-// Replaced Math.floor and division with crypto.randomInt to fix tiny bias
 function shuffleArray(arr) {
   let currentIndex = arr.length;
 
@@ -167,7 +155,6 @@ function shuffleArray(arr) {
     const randomIndex = crypto.randomInt(0, currentIndex);
     currentIndex--;
 
-    // Swap
     [arr[currentIndex], arr[randomIndex]] = [
       arr[randomIndex],
       arr[currentIndex],
@@ -177,11 +164,14 @@ function shuffleArray(arr) {
   return arr;
 }
 
-module.exports = { generatePassword };
-
-// --- Main Execution ---
-async function main() {
-  const options = parseArgs(process.argv);
+function main() {
+  let options;
+  try {
+    options = parseArgs(process.argv);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
 
   if (options.showHelp) {
     showHelp();
@@ -200,3 +190,5 @@ async function main() {
 if (require.main === module) {
   main();
 }
+
+module.exports = { generatePassword, parseArgs };

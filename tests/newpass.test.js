@@ -1,5 +1,8 @@
 const assert = require("assert");
-const { generatePassword } = require("../newpass");
+const { generatePassword, parseArgs } = require("../newpass");
+
+// argv-style: parseArgs ignores args[0] and args[1] (node, script path).
+const argv = (...rest) => ["node", "newpass.js", ...rest];
 
 const ALL_ON = {
   includeLowercase: true,
@@ -84,5 +87,48 @@ assert.throws(
   () => generatePassword({ length: 200, ...ALL_ON }),
   /exceeds maximum allowed length/,
 );
+
+// --- parseArgs ---
+
+// Defaults
+const defaults = parseArgs(argv());
+assert.strictEqual(defaults.length, 12);
+assert.strictEqual(defaults.includeLowercase, true);
+assert.strictEqual(defaults.includeUppercase, true);
+assert.strictEqual(defaults.includeNumbers, true);
+assert.strictEqual(defaults.includeSymbols, true);
+assert.strictEqual(defaults.quiet, false);
+assert.strictEqual(defaults.showHelp, false);
+
+// Long and short forms set the same option
+assert.strictEqual(parseArgs(argv("-l", "20")).length, 20);
+assert.strictEqual(parseArgs(argv("--length", "20")).length, 20);
+assert.strictEqual(parseArgs(argv("-q")).quiet, true);
+assert.strictEqual(parseArgs(argv("--quiet")).quiet, true);
+assert.strictEqual(parseArgs(argv("-n")).includeNumbers, false);
+assert.strictEqual(parseArgs(argv("-s")).includeSymbols, false);
+assert.strictEqual(parseArgs(argv("-u")).includeUppercase, false);
+assert.strictEqual(parseArgs(argv("-w")).includeLowercase, false);
+assert.strictEqual(parseArgs(argv("-h")).showHelp, true);
+
+// Strict integer parsing: trailing garbage rejected
+assert.throws(() => parseArgs(argv("-l", "12foo")), /Must be an integer/);
+assert.throws(() => parseArgs(argv("-l", "")), /Must be an integer/);
+assert.throws(() => parseArgs(argv("-l", "-5")), /Must be an integer/);
+assert.throws(() => parseArgs(argv("-l", "1.5")), /Must be an integer/);
+
+// Missing argument to --length
+assert.throws(() => parseArgs(argv("-l")), /requires a number/);
+
+// Out of range
+assert.throws(() => parseArgs(argv("-l", "0")), /out of range/);
+assert.throws(() => parseArgs(argv("-l", "129")), /out of range/);
+
+// Boundaries accepted
+assert.strictEqual(parseArgs(argv("-l", "1")).length, 1);
+assert.strictEqual(parseArgs(argv("-l", "128")).length, 128);
+
+// Unknown option rejected (no silent pass-through)
+assert.throws(() => parseArgs(argv("--lenght", "20")), /Unknown option/);
 
 console.log("Newpass tests passed!");
