@@ -34,7 +34,7 @@ if (require.main === module) {
     process.exit(1);
   }
 
-  console.log(
-    `Days since ${inputDate}: ${daysBetween(targetDate, new Date())} days`,
-  );
+  const now = new Date();
+  const verb = getUTCMidnight(targetDate) > getUTCMidnight(now) ? "until" : "since";
+  console.log(`Days ${verb} ${inputDate}: ${daysBetween(targetDate, now)} days`);
 }
