@@ -15,7 +15,11 @@
   },
   "license": "MIT",
   "author": "Michael Madden",
+  "private": true,
   "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "newpass": "node newpass.js",
     "sysinfo": "node sysinfo.js",
