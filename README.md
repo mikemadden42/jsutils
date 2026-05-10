@@ -2,6 +2,8 @@
 
 A collection of useful JavaScript CLI utilities.
 
+**Requires Node.js 20 or newer.**
+
 ## Utilities
 
 ### 1. Password Generator (`newpass.js`)
@@ -15,11 +17,12 @@ node newpass.js [options]
 ```
 
 **Options:**
-- `-l, --length <number>`: Password length (4-128, default: 12)
+- `-l, --length <number>`: Password length (1-128, default: 12; must be >= number of included character classes)
 - `-n, --no-numbers`: Exclude numbers
 - `-s, --no-symbols`: Exclude symbols
 - `-u, --no-uppercase`: Exclude uppercase letters
 - `-w, --no-lowercase`: Exclude lowercase letters
+- `-q, --quiet`: Print only the password (suitable for piping)
 - `-h, --help`: Display help
 
 ### 2. System Info (`sysinfo.js`)
