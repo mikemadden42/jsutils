@@ -3,39 +3,38 @@
 "use strict";
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-// Helper function to lock any date to midnight UTC
-function getUTCMidnight(dateInput) {
-  const d = new Date(dateInput);
-
-  // Date.UTC() creates a pure timestamp, completely ignoring local timezones
-  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+function getUTCMidnight(date) {
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
-const daysBetween = (d1, d2) => {
-  const utc1 = getUTCMidnight(d1);
-  const utc2 = getUTCMidnight(d2);
-
-  // Because both are strict UTC midnights, this divides perfectly.
-  // Math.floor is completely safe to use here.
-  return Math.floor(Math.abs(utc1 - utc2) / MS_PER_DAY);
-};
+// Symmetric by design: order of arguments doesn't matter.
+const daysBetween = (d1, d2) =>
+  Math.floor(Math.abs(getUTCMidnight(d1) - getUTCMidnight(d2)) / MS_PER_DAY);
 
 module.exports = { daysBetween, getUTCMidnight };
 
-// Get the target date from arguments or use the default
 if (require.main === module) {
   const inputDate = process.argv[2] || "2020-07-06";
-  const targetDate = new Date(inputDate);
 
-  if (isNaN(targetDate.getTime())) {
+  if (!DATE_RE.test(inputDate)) {
     console.error("Error: Invalid date format. Please use YYYY-MM-DD.");
     process.exit(1);
   }
 
+  const targetDate = new Date(`${inputDate}T00:00:00Z`);
+  // The Date constructor rolls overflow dates forward (e.g. 2023-02-30 → Mar 2),
+  // so check that the parsed components round-trip back to the input.
+  if (
+    isNaN(targetDate.getTime()) ||
+    targetDate.toISOString().slice(0, 10) !== inputDate
+  ) {
+    console.error(`Error: ${inputDate} is not a valid calendar date.`);
+    process.exit(1);
+  }
+
   console.log(
-    "Days since %s: %s days",
-    inputDate,
-    daysBetween(targetDate, new Date()),
+    `Days since ${inputDate}: ${daysBetween(targetDate, new Date())} days`,
   );
 }

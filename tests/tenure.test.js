@@ -1,20 +1,66 @@
 const assert = require("assert");
 const { daysBetween, getUTCMidnight } = require("../tenure");
 
-// Test getUTCMidnight
+// getUTCMidnight zeroes out time-of-day
 const date = new Date("2023-05-15T10:00:00Z");
 const midnight = getUTCMidnight(date);
 assert.strictEqual(new Date(midnight).getUTCHours(), 0);
 assert.strictEqual(new Date(midnight).getUTCMinutes(), 0);
 assert.strictEqual(new Date(midnight).getUTCSeconds(), 0);
 
-// Test daysBetween
-const d1 = new Date("2023-01-01");
-const d2 = new Date("2023-01-02");
-assert.strictEqual(daysBetween(d1, d2), 1);
+// One day apart
+assert.strictEqual(
+  daysBetween(new Date("2023-01-01"), new Date("2023-01-02")),
+  1,
+);
 
-const d3 = new Date("2023-01-01");
-const d4 = new Date("2023-01-01");
-assert.strictEqual(daysBetween(d3, d4), 0);
+// Same day
+assert.strictEqual(
+  daysBetween(new Date("2023-01-01"), new Date("2023-01-01")),
+  0,
+);
+
+// Same calendar day, different times — should still be 0
+assert.strictEqual(
+  daysBetween(
+    new Date("2023-01-01T00:00:00Z"),
+    new Date("2023-01-01T23:59:59Z"),
+  ),
+  0,
+);
+
+// Symmetry: order of arguments must not matter
+const a = new Date("2020-07-06");
+const b = new Date("2024-03-15");
+assert.strictEqual(daysBetween(a, b), daysBetween(b, a));
+
+// Year/month boundary
+assert.strictEqual(
+  daysBetween(new Date("2023-12-31"), new Date("2024-01-02")),
+  2,
+);
+
+// Leap year: Feb has 29 days in 2024
+assert.strictEqual(
+  daysBetween(new Date("2024-02-28"), new Date("2024-03-01")),
+  2,
+);
+
+// Non-leap year: Feb has 28 days in 2023
+assert.strictEqual(
+  daysBetween(new Date("2023-02-28"), new Date("2023-03-01")),
+  1,
+);
+
+// DST-spanning span (US "spring forward" 2024-03-10, "fall back" 2024-11-03).
+// In any timezone, the UTC-anchored count must be 365 days for 2024.
+assert.strictEqual(
+  daysBetween(new Date("2024-01-01"), new Date("2025-01-01")),
+  366, // 2024 is a leap year
+);
+assert.strictEqual(
+  daysBetween(new Date("2023-03-09"), new Date("2023-03-13")),
+  4,
+);
 
 console.log("Tenure tests passed!");
