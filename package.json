@@ -16,12 +16,11 @@
   "license": "MIT",
   "author": "Michael Madden",
   "type": "commonjs",
-  "main": "sysinfo.js",
   "scripts": {
     "newpass": "node newpass.js",
     "sysinfo": "node sysinfo.js",
     "tenure": "node tenure.js",
-    "run-all": "node newpass.js && node sysinfo.js && node tenure.js",
+    "run-all": "node newpass.js > /dev/null && node sysinfo.js && node tenure.js",
     "test": "node tests/tenure.test.js && node tests/newpass.test.js"
   }
 }
