@@ -30,12 +30,12 @@ Findings from a project review (2026-11-24). Ordered most important first.
 
 ## Minor
 
-- [ ] **Add tests for `sysinfo.js`.** `formatBytes`, `formatUptime` and
+- [x] **Add tests for `sysinfo.js`.** `formatBytes`, `formatUptime` and
   `summarizeCpus` are exported but untested. Edge case: `formatBytes(0.5)`
   returns `"512.00 undefined"` because the unit index goes negative. Clamp with
   `Math.max(0, …)` or treat `bytes < 1` as bytes.
 
-- [ ] **Give `generatePassword` defaults for library callers.**
+- [x] **Give `generatePassword` defaults for library callers.**
   `generatePassword({ length: 12 })` throws "No character sets selected"
   because missing `include*` flags count as false. Merge in defaults as
   `parseArgs` does.

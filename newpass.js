@@ -14,13 +14,19 @@ const CHAR_SETS = {
   symbols: "!@#$%^&*()-_+=[]{}|;:,.<>?/~`",
 };
 
+// Shared by the CLI and library callers, so generatePassword({ length: 20 })
+// means "all character classes, 20 long" just like the CLI default.
+const DEFAULT_OPTIONS = Object.freeze({
+  length: DEFAULT_PASSWORD_LENGTH,
+  includeLowercase: true,
+  includeUppercase: true,
+  includeNumbers: true,
+  includeSymbols: true,
+});
+
 function parseArgs(args) {
   const options = {
-    length: DEFAULT_PASSWORD_LENGTH,
-    includeLowercase: true,
-    includeUppercase: true,
-    includeNumbers: true,
-    includeSymbols: true,
+    ...DEFAULT_OPTIONS,
     quiet: false,
     showHelp: false,
   };
@@ -99,7 +105,14 @@ Options:
 `);
 }
 
-function generatePassword(options) {
+function generatePassword(overrides = {}) {
+  // Skip keys explicitly set to undefined so they fall back to the default
+  // instead of silently disabling a character class.
+  const options = { ...DEFAULT_OPTIONS };
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value !== undefined) options[key] = value;
+  }
+
   let allowedChars = "";
   const passwordArr = [];
 
@@ -191,4 +204,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { generatePassword, parseArgs };
+module.exports = { generatePassword, parseArgs, DEFAULT_OPTIONS };
