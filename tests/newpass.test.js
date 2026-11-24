@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { generatePassword, parseArgs } = require("../newpass");
+const { generatePassword, parseArgs, DEFAULT_OPTIONS } = require("../newpass");
 
 // argv-style: parseArgs ignores args[0] and args[1] (node, script path).
 const argv = (...rest) => ["node", "newpass.js", ...rest];
@@ -87,6 +87,43 @@ assert.throws(
   () => generatePassword({ length: 200, ...ALL_ON }),
   /exceeds maximum allowed length/,
 );
+
+// --- generatePassword defaults (library callers) ---
+
+const SYMBOL_RE = /[!@#$%^&*()\-_+=[\]{}|;:,.<>?/~`]/;
+const hasAllClasses = (p) =>
+  /[a-z]/.test(p) && /[A-Z]/.test(p) && /[0-9]/.test(p) && SYMBOL_RE.test(p);
+
+// No arguments: default length, every class present
+const pd = generatePassword();
+assert.strictEqual(pd.length, DEFAULT_OPTIONS.length);
+assert.ok(hasAllClasses(pd), `expected all classes in "${pd}"`);
+
+// Only length given: other classes default to on (this used to throw
+// "No character sets selected")
+const pl = generatePassword({ length: 20 });
+assert.strictEqual(pl.length, 20);
+assert.ok(hasAllClasses(pl), `expected all classes in "${pl}"`);
+
+// One class turned off, the rest default on
+for (let i = 0; i < 50; i++) {
+  const p = generatePassword({ includeSymbols: false });
+  assert.strictEqual(p.length, DEFAULT_OPTIONS.length);
+  assert.doesNotMatch(p, SYMBOL_RE);
+  assert.match(p, /[a-z]/);
+  assert.match(p, /[A-Z]/);
+  assert.match(p, /[0-9]/);
+}
+
+// Explicit undefined falls back to the default instead of disabling a class
+const pu = generatePassword({ length: 8, includeNumbers: undefined });
+assert.match(pu, /[0-9]/);
+
+// Defaults are frozen, and the caller's object is not mutated
+assert.ok(Object.isFrozen(DEFAULT_OPTIONS));
+const callerOpts = { length: 16 };
+generatePassword(callerOpts);
+assert.deepStrictEqual(callerOpts, { length: 16 });
 
 // --- parseArgs ---
 

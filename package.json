@@ -25,6 +25,6 @@
     "sysinfo": "node sysinfo.js",
     "tenure": "node tenure.js",
     "run-all": "node newpass.js > /dev/null && node sysinfo.js && node tenure.js",
-    "test": "node tests/tenure.test.js && node tests/newpass.test.js"
+    "test": "node tests/tenure.test.js && node tests/newpass.test.js && node tests/sysinfo.test.js"
   }
 }
