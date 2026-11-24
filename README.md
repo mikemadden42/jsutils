@@ -24,7 +24,7 @@ node newpass.js [options]
 - `-n, --no-numbers`: Exclude numbers
 - `-s, --no-symbols`: Exclude symbols
 - `-u, --no-uppercase`: Exclude uppercase letters
-- `-w, --no-lowercase`: Exclude lowercase letters
+- `-L, --no-lowercase`: Exclude lowercase letters
 - `-q, --quiet`: Print only the password (suitable for piping)
 - `-h, --help`: Display help
 
@@ -43,11 +43,11 @@ Calculates the number of days between a given date and today.
 
 **Usage:**
 ```bash
-npm run tenure -- [YYYY-MM-DD]
+npm run tenure -- <YYYY-MM-DD>
 # OR
-node tenure.js [YYYY-MM-DD]
+node tenure.js <YYYY-MM-DD>
 ```
-*Default date is 2020-07-06 if not provided.*
+*The date is required; run with no arguments or `-h` to see usage.*
 
 ## Development
 

@@ -49,11 +49,11 @@ Findings from a project review (2026-11-24). Ordered most important first.
   `npm ci` and the npm cache have nothing to install (no dependencies) and could
   be dropped, though they do no harm.
 
-- [ ] **Reconsider the hardcoded default date in `tenure.js:19`.** `2020-07-06`
+- [x] **Reconsider the hardcoded default date in `tenure.js:19`.** `2020-07-06`
   is surprising for anyone else; showing usage when no argument is given might
   be clearer.
 
-- [ ] **Rename `-w` (`--no-lowercase`).** Hard-to-guess letter; `-L` might be
+- [x] **Rename `-w` (`--no-lowercase`).** Hard-to-guess letter; `-L` might be
   easier to remember. Cosmetic.
 
 ## Reviewed and fine as is
