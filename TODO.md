@@ -4,7 +4,7 @@ Findings from a project review (2026-11-24). Ordered most important first.
 
 ## Real issues
 
-- [ ] **`tenure.js` counts against UTC "today", not local today.**
+- [x] **`tenure.js` counts against UTC "today", not local today.**
   `tenure.js:37-39` compares the target date to UTC midnight of `now`. West of
   UTC, the count is one day too high every evening (e.g. 8 pm in New York is
   already tomorrow in UTC). With `TZ=America/New_York`,
@@ -15,14 +15,14 @@ Findings from a project review (2026-11-24). Ordered most important first.
   const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
   ```
 
-- [ ] **`tenure.js` date validation has no tests.**
+- [x] **`tenure.js` date validation has no tests.**
   The format regex, the round-trip check that rejects dates like `2023-02-30`,
   and the "until"/"since" choice all live inside the `require.main` block
   (`tenure.js:19-39`), so tests can't reach them. Move them into an exported
   `parseDate(str)` (and maybe `describe(target, now)`) and test those. Do this
   together with the timezone fix above so the fix is testable.
 
-- [ ] **Misleading comment and ineffective DST tests in `tests/tenure.test.js:55-59`.**
+- [x] **Misleading comment and ineffective DST tests in `tests/tenure.test.js:55-59`.**
   The comment says "must be 365 days for 2024" but the assertion is `366`.
   The DST tests also don't exercise DST: `new Date("YYYY-MM-DD")` parses as
   UTC, which has no DST. Construct dates in local time and run the tests under
