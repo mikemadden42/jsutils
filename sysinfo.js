@@ -57,8 +57,14 @@ function summarizeCpus(cpus) {
 }
 
 function printSysInfo() {
-  // --- node / process context ---
-  console.log(`node.js version: ${process.version}`);
+  // --- runtime / process context ---
+  // Bun sets process.version to the Node release it emulates, so report Bun
+  // explicitly rather than mislabeling it as Node.
+  if (process.versions.bun) {
+    console.log(`runtime: bun ${process.versions.bun} (node compat ${process.version})`);
+  } else {
+    console.log(`runtime: node ${process.version}`);
+  }
   console.log("----------------------------------------");
 
   // --- general system OS ---

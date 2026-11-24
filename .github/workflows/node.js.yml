@@ -28,3 +28,16 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run run-all
+
+  bun:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      # --bun makes the "node" in package.json scripts resolve to Bun,
+      # so the same scripts are exercised under the Bun runtime.
+      - run: bun --bun run test
+      - run: bun --bun run run-all
