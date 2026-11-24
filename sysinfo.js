@@ -7,12 +7,16 @@ const dns = require("dns");
 const fs = require("fs");
 
 const formatBytes = (bytes) => {
+  if (!Number.isFinite(bytes) || bytes < 0) {
+    throw new RangeError(`formatBytes expects a non-negative number, got ${bytes}`);
+  }
   const units = ["B", "KB", "MB", "GB", "TB"];
   if (bytes === 0) return "0 B";
-  const i = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(1024)),
-    units.length - 1,
-  );
+  // Values under 1 byte would give a negative log and index past the units.
+  const i =
+    bytes < 1
+      ? 0
+      : Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
   return `${(bytes / 1024 ** i).toFixed(2)} ${units[i]}`;
 };
 
