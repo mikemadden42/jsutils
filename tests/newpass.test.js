@@ -148,7 +148,8 @@ describe("parseArgs", () => {
     assert.strictEqual(parseArgs(argv("-n")).includeNumbers, false);
     assert.strictEqual(parseArgs(argv("-s")).includeSymbols, false);
     assert.strictEqual(parseArgs(argv("-u")).includeUppercase, false);
-    assert.strictEqual(parseArgs(argv("-w")).includeLowercase, false);
+    assert.strictEqual(parseArgs(argv("-L")).includeLowercase, false);
+    assert.strictEqual(parseArgs(argv("--no-lowercase")).includeLowercase, false);
     assert.strictEqual(parseArgs(argv("-h")).showHelp, true);
   });
 
@@ -174,5 +175,7 @@ describe("parseArgs", () => {
 
   test("unknown option rejected", () => {
     assert.throws(() => parseArgs(argv("--lenght", "20")), /Unknown option/);
+    // -w was renamed to -L; the old letter is intentionally not kept.
+    assert.throws(() => parseArgs(argv("-w")), /Unknown option/);
   });
 });

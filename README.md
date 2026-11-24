@@ -24,7 +24,7 @@ node newpass.js [options]
 - `-n, --no-numbers`: Exclude numbers
 - `-s, --no-symbols`: Exclude symbols
 - `-u, --no-uppercase`: Exclude uppercase letters
-- `-w, --no-lowercase`: Exclude lowercase letters
+- `-L, --no-lowercase`: Exclude lowercase letters
 - `-q, --quiet`: Print only the password (suitable for piping)
 - `-h, --help`: Display help
 

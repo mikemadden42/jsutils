@@ -69,7 +69,7 @@ function parseArgs(args) {
       case "--no-uppercase":
         options.includeUppercase = false;
         break;
-      case "-w":
+      case "-L":
       case "--no-lowercase":
         options.includeLowercase = false;
         break;
@@ -99,7 +99,7 @@ Options:
   -n, --no-numbers         Exclude numbers (0-9)
   -s, --no-symbols         Exclude symbols (!@#$%^&*()-_+=[]{}|;:,.<>?/~\`)
   -u, --no-uppercase       Exclude uppercase letters (A-Z)
-  -w, --no-lowercase       Exclude lowercase letters (a-z)
+  -L, --no-lowercase       Exclude lowercase letters (a-z)
   -q, --quiet              Print only the password (suitable for piping)
   -h, --help               Display this help message
 `);
