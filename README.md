@@ -2,7 +2,7 @@
 
 A collection of useful JavaScript CLI utilities.
 
-**Requires Node.js 20 or newer, or Bun.** CI runs everything under both.
+**Requires Node.js 22 or newer, or Bun.** CI runs everything under both.
 
 To run the npm scripts under Bun instead of Node, use `bun --bun run <script>`
 (plain `bun run` still invokes `node` for scripts that call it).

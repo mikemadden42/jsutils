@@ -42,7 +42,7 @@ Findings from a project review (2026-11-24). Ordered most important first.
 
 - [ ] **Consider moving tests to `node:test`.** Tests are plain assert scripts
   chained with `&&`, so the first failure stops everything and output is just a
-  stack trace. `node:test` is built in from Node 20; `node --test tests/` gives
+  stack trace. `node:test` is built into every supported Node version; `node --test tests/` gives
   per-case output with no new dependencies.
 
 - [ ] **Harden CI.** Add `permissions: { contents: read }` to the workflow.
