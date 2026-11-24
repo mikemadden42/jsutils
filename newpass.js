@@ -78,9 +78,7 @@ function parseArgs(args) {
         options.showHelp = true;
         break;
       default:
-        throw new Error(
-          `Unknown option "${arg}". Use -h or --help for usage.`,
-        );
+        throw new Error(`Unknown option "${arg}". Use -h or --help for usage.`);
     }
   }
   return options;

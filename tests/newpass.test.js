@@ -117,7 +117,10 @@ describe("generatePassword defaults (library callers)", () => {
   });
 
   test("explicit undefined falls back to the default", () => {
-    assert.match(generatePassword({ length: 8, includeNumbers: undefined }), /[0-9]/);
+    assert.match(
+      generatePassword({ length: 8, includeNumbers: undefined }),
+      /[0-9]/,
+    );
   });
 
   test("defaults are frozen and the caller's object is not mutated", () => {
@@ -149,13 +152,20 @@ describe("parseArgs", () => {
     assert.strictEqual(parseArgs(argv("-s")).includeSymbols, false);
     assert.strictEqual(parseArgs(argv("-u")).includeUppercase, false);
     assert.strictEqual(parseArgs(argv("-L")).includeLowercase, false);
-    assert.strictEqual(parseArgs(argv("--no-lowercase")).includeLowercase, false);
+    assert.strictEqual(
+      parseArgs(argv("--no-lowercase")).includeLowercase,
+      false,
+    );
     assert.strictEqual(parseArgs(argv("-h")).showHelp, true);
   });
 
   test("strict integer parsing rejects trailing garbage", () => {
     for (const bad of ["12foo", "", "-5", "1.5"]) {
-      assert.throws(() => parseArgs(argv("-l", bad)), /Must be an integer/, `"${bad}"`);
+      assert.throws(
+        () => parseArgs(argv("-l", bad)),
+        /Must be an integer/,
+        `"${bad}"`,
+      );
     }
   });
 

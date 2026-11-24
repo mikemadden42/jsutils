@@ -8,7 +8,9 @@ const fs = require("fs");
 
 const formatBytes = (bytes) => {
   if (!Number.isFinite(bytes) || bytes < 0) {
-    throw new RangeError(`formatBytes expects a non-negative number, got ${bytes}`);
+    throw new RangeError(
+      `formatBytes expects a non-negative number, got ${bytes}`,
+    );
   }
   const units = ["B", "KB", "MB", "GB", "TB"];
   if (bytes === 0) return "0 B";
@@ -16,7 +18,10 @@ const formatBytes = (bytes) => {
   const i =
     bytes < 1
       ? 0
-      : Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+      : Math.min(
+          Math.floor(Math.log(bytes) / Math.log(1024)),
+          units.length - 1,
+        );
   return `${(bytes / 1024 ** i).toFixed(2)} ${units[i]}`;
 };
 
@@ -34,7 +39,8 @@ function getAvailableMem() {
     try {
       const meminfo = fs.readFileSync("/proc/meminfo", "utf8");
       const match = meminfo.match(/^MemAvailable:\s+(\d+)\s+kB/m);
-      if (match) return { bytes: parseInt(match[1], 10) * 1024, label: "available" };
+      if (match)
+        return { bytes: parseInt(match[1], 10) * 1024, label: "available" };
     } catch (_) {
       // fall through
     }
@@ -65,7 +71,9 @@ function printSysInfo() {
   // Bun sets process.version to the Node release it emulates, so report Bun
   // explicitly rather than mislabeling it as Node.
   if (process.versions.bun) {
-    console.log(`runtime: bun ${process.versions.bun} (node compat ${process.version})`);
+    console.log(
+      `runtime: bun ${process.versions.bun} (node compat ${process.version})`,
+    );
   } else {
     console.log(`runtime: node ${process.version}`);
   }

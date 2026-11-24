@@ -41,6 +41,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      # Fails if any file needs formatting; run `bun fmt` locally to fix.
+      - run: bun fmt --check
       # Bun runs node:test suites through its own runner (`bun test`),
       # not `node --test`, so it has a dedicated script.
       - run: bun run test:bun
