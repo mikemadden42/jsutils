@@ -40,12 +40,12 @@ Findings from a project review (2026-11-24). Ordered most important first.
   because missing `include*` flags count as false. Merge in defaults as
   `parseArgs` does.
 
-- [ ] **Consider moving tests to `node:test`.** Tests are plain assert scripts
+- [x] **Consider moving tests to `node:test`.** Tests are plain assert scripts
   chained with `&&`, so the first failure stops everything and output is just a
   stack trace. `node:test` is built into every supported Node version; `node --test tests/` gives
   per-case output with no new dependencies.
 
-- [ ] **Harden CI.** Add `permissions: { contents: read }` to the workflow.
+- [x] **Harden CI.** Add `permissions: { contents: read }` to the workflow.
   `npm ci` and the npm cache have nothing to install (no dependencies) and could
   be dropped, though they do no harm.
 

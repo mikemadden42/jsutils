@@ -1,4 +1,5 @@
-const assert = require("assert");
+const { describe, test } = require("node:test");
+const assert = require("node:assert");
 const { generatePassword, parseArgs, DEFAULT_OPTIONS } = require("../newpass");
 
 // argv-style: parseArgs ignores args[0] and args[1] (node, script path).
@@ -11,161 +12,167 @@ const ALL_ON = {
   includeSymbols: true,
 };
 
-// Default length
-const p1 = generatePassword({ length: 12, ...ALL_ON });
-assert.strictEqual(p1.length, 12);
-
-// Custom length
-const p2 = generatePassword({ length: 20, ...ALL_ON });
-assert.strictEqual(p2.length, 20);
-
-// All classes present at minimum length
-const p3 = generatePassword({ length: 4, ...ALL_ON });
-assert.strictEqual(p3.length, 4);
-assert.match(p3, /[a-z]/);
-assert.match(p3, /[A-Z]/);
-assert.match(p3, /[0-9]/);
-assert.match(p3, /[!@#$%^&*()\-_+=[\]{}|;:,.<>?/~`]/);
-
-// Exclusion: no symbols. Run many trials to catch positional regressions
-// (e.g. a bug where only the guaranteed slots respect the exclusion).
-for (let i = 0; i < 200; i++) {
-  const p = generatePassword({ ...ALL_ON, length: 32, includeSymbols: false });
-  assert.strictEqual(p.length, 32);
-  assert.doesNotMatch(p, /[!@#$%^&*()\-_+=[\]{}|;:,.<>?/~`]/);
-}
-
-// Exclusion: no numbers
-for (let i = 0; i < 200; i++) {
-  const p = generatePassword({ ...ALL_ON, length: 32, includeNumbers: false });
-  assert.doesNotMatch(p, /[0-9]/);
-}
-
-// Exclusion: no uppercase
-for (let i = 0; i < 200; i++) {
-  const p = generatePassword({ ...ALL_ON, length: 32, includeUppercase: false });
-  assert.doesNotMatch(p, /[A-Z]/);
-}
-
-// Exclusion: no lowercase
-for (let i = 0; i < 200; i++) {
-  const p = generatePassword({ ...ALL_ON, length: 32, includeLowercase: false });
-  assert.doesNotMatch(p, /[a-z]/);
-}
-
-// Single-class: lowercase only
-const lonly = generatePassword({
-  length: 16,
-  includeLowercase: true,
-  includeUppercase: false,
-  includeNumbers: false,
-  includeSymbols: false,
-});
-assert.match(lonly, /^[a-z]+$/);
-
-// Empty selection throws
-assert.throws(
-  () =>
-    generatePassword({
-      length: 12,
-      includeLowercase: false,
-      includeUppercase: false,
-      includeNumbers: false,
-      includeSymbols: false,
-    }),
-  /No character sets selected/,
-);
-
-// Length below required class count throws (was silently bumped before)
-assert.throws(
-  () => generatePassword({ length: 3, ...ALL_ON }),
-  /less than the number of required character classes/,
-);
-
-// Length above max throws
-assert.throws(
-  () => generatePassword({ length: 200, ...ALL_ON }),
-  /exceeds maximum allowed length/,
-);
-
-// --- generatePassword defaults (library callers) ---
-
 const SYMBOL_RE = /[!@#$%^&*()\-_+=[\]{}|;:,.<>?/~`]/;
 const hasAllClasses = (p) =>
   /[a-z]/.test(p) && /[A-Z]/.test(p) && /[0-9]/.test(p) && SYMBOL_RE.test(p);
 
-// No arguments: default length, every class present
-const pd = generatePassword();
-assert.strictEqual(pd.length, DEFAULT_OPTIONS.length);
-assert.ok(hasAllClasses(pd), `expected all classes in "${pd}"`);
+describe("generatePassword", () => {
+  test("default length", () => {
+    assert.strictEqual(generatePassword({ length: 12, ...ALL_ON }).length, 12);
+  });
 
-// Only length given: other classes default to on (this used to throw
-// "No character sets selected")
-const pl = generatePassword({ length: 20 });
-assert.strictEqual(pl.length, 20);
-assert.ok(hasAllClasses(pl), `expected all classes in "${pl}"`);
+  test("custom length", () => {
+    assert.strictEqual(generatePassword({ length: 20, ...ALL_ON }).length, 20);
+  });
 
-// One class turned off, the rest default on
-for (let i = 0; i < 50; i++) {
-  const p = generatePassword({ includeSymbols: false });
-  assert.strictEqual(p.length, DEFAULT_OPTIONS.length);
-  assert.doesNotMatch(p, SYMBOL_RE);
-  assert.match(p, /[a-z]/);
-  assert.match(p, /[A-Z]/);
-  assert.match(p, /[0-9]/);
-}
+  test("all classes present at minimum length", () => {
+    const p = generatePassword({ length: 4, ...ALL_ON });
+    assert.strictEqual(p.length, 4);
+    assert.match(p, /[a-z]/);
+    assert.match(p, /[A-Z]/);
+    assert.match(p, /[0-9]/);
+    assert.match(p, SYMBOL_RE);
+  });
 
-// Explicit undefined falls back to the default instead of disabling a class
-const pu = generatePassword({ length: 8, includeNumbers: undefined });
-assert.match(pu, /[0-9]/);
+  // Many trials per exclusion to catch positional regressions (e.g. a bug
+  // where only the guaranteed slots respect the exclusion).
+  const exclusions = [
+    ["symbols", "includeSymbols", SYMBOL_RE],
+    ["numbers", "includeNumbers", /[0-9]/],
+    ["uppercase", "includeUppercase", /[A-Z]/],
+    ["lowercase", "includeLowercase", /[a-z]/],
+  ];
+  for (const [name, key, re] of exclusions) {
+    test(`excludes ${name}`, () => {
+      for (let i = 0; i < 200; i++) {
+        const p = generatePassword({ ...ALL_ON, length: 32, [key]: false });
+        assert.strictEqual(p.length, 32);
+        assert.doesNotMatch(p, re);
+      }
+    });
+  }
 
-// Defaults are frozen, and the caller's object is not mutated
-assert.ok(Object.isFrozen(DEFAULT_OPTIONS));
-const callerOpts = { length: 16 };
-generatePassword(callerOpts);
-assert.deepStrictEqual(callerOpts, { length: 16 });
+  test("single class: lowercase only", () => {
+    const p = generatePassword({
+      length: 16,
+      includeLowercase: true,
+      includeUppercase: false,
+      includeNumbers: false,
+      includeSymbols: false,
+    });
+    assert.match(p, /^[a-z]+$/);
+  });
 
-// --- parseArgs ---
+  test("throws when no character sets are selected", () => {
+    assert.throws(
+      () =>
+        generatePassword({
+          length: 12,
+          includeLowercase: false,
+          includeUppercase: false,
+          includeNumbers: false,
+          includeSymbols: false,
+        }),
+      /No character sets selected/,
+    );
+  });
 
-// Defaults
-const defaults = parseArgs(argv());
-assert.strictEqual(defaults.length, 12);
-assert.strictEqual(defaults.includeLowercase, true);
-assert.strictEqual(defaults.includeUppercase, true);
-assert.strictEqual(defaults.includeNumbers, true);
-assert.strictEqual(defaults.includeSymbols, true);
-assert.strictEqual(defaults.quiet, false);
-assert.strictEqual(defaults.showHelp, false);
+  test("throws when length is below the required class count", () => {
+    assert.throws(
+      () => generatePassword({ length: 3, ...ALL_ON }),
+      /less than the number of required character classes/,
+    );
+  });
 
-// Long and short forms set the same option
-assert.strictEqual(parseArgs(argv("-l", "20")).length, 20);
-assert.strictEqual(parseArgs(argv("--length", "20")).length, 20);
-assert.strictEqual(parseArgs(argv("-q")).quiet, true);
-assert.strictEqual(parseArgs(argv("--quiet")).quiet, true);
-assert.strictEqual(parseArgs(argv("-n")).includeNumbers, false);
-assert.strictEqual(parseArgs(argv("-s")).includeSymbols, false);
-assert.strictEqual(parseArgs(argv("-u")).includeUppercase, false);
-assert.strictEqual(parseArgs(argv("-w")).includeLowercase, false);
-assert.strictEqual(parseArgs(argv("-h")).showHelp, true);
+  test("throws when length exceeds the maximum", () => {
+    assert.throws(
+      () => generatePassword({ length: 200, ...ALL_ON }),
+      /exceeds maximum allowed length/,
+    );
+  });
+});
 
-// Strict integer parsing: trailing garbage rejected
-assert.throws(() => parseArgs(argv("-l", "12foo")), /Must be an integer/);
-assert.throws(() => parseArgs(argv("-l", "")), /Must be an integer/);
-assert.throws(() => parseArgs(argv("-l", "-5")), /Must be an integer/);
-assert.throws(() => parseArgs(argv("-l", "1.5")), /Must be an integer/);
+describe("generatePassword defaults (library callers)", () => {
+  test("no arguments: default length, every class present", () => {
+    const p = generatePassword();
+    assert.strictEqual(p.length, DEFAULT_OPTIONS.length);
+    assert.ok(hasAllClasses(p), `expected all classes in "${p}"`);
+  });
 
-// Missing argument to --length
-assert.throws(() => parseArgs(argv("-l")), /requires a number/);
+  test("only length given: other classes default on", () => {
+    const p = generatePassword({ length: 20 });
+    assert.strictEqual(p.length, 20);
+    assert.ok(hasAllClasses(p), `expected all classes in "${p}"`);
+  });
 
-// Out of range
-assert.throws(() => parseArgs(argv("-l", "0")), /out of range/);
-assert.throws(() => parseArgs(argv("-l", "129")), /out of range/);
+  test("one class off, the rest default on", () => {
+    for (let i = 0; i < 50; i++) {
+      const p = generatePassword({ includeSymbols: false });
+      assert.strictEqual(p.length, DEFAULT_OPTIONS.length);
+      assert.doesNotMatch(p, SYMBOL_RE);
+      assert.match(p, /[a-z]/);
+      assert.match(p, /[A-Z]/);
+      assert.match(p, /[0-9]/);
+    }
+  });
 
-// Boundaries accepted
-assert.strictEqual(parseArgs(argv("-l", "1")).length, 1);
-assert.strictEqual(parseArgs(argv("-l", "128")).length, 128);
+  test("explicit undefined falls back to the default", () => {
+    assert.match(generatePassword({ length: 8, includeNumbers: undefined }), /[0-9]/);
+  });
 
-// Unknown option rejected (no silent pass-through)
-assert.throws(() => parseArgs(argv("--lenght", "20")), /Unknown option/);
+  test("defaults are frozen and the caller's object is not mutated", () => {
+    assert.ok(Object.isFrozen(DEFAULT_OPTIONS));
+    const callerOpts = { length: 16 };
+    generatePassword(callerOpts);
+    assert.deepStrictEqual(callerOpts, { length: 16 });
+  });
+});
 
-console.log("Newpass tests passed!");
+describe("parseArgs", () => {
+  test("defaults", () => {
+    const o = parseArgs(argv());
+    assert.strictEqual(o.length, 12);
+    assert.strictEqual(o.includeLowercase, true);
+    assert.strictEqual(o.includeUppercase, true);
+    assert.strictEqual(o.includeNumbers, true);
+    assert.strictEqual(o.includeSymbols, true);
+    assert.strictEqual(o.quiet, false);
+    assert.strictEqual(o.showHelp, false);
+  });
+
+  test("long and short forms set the same option", () => {
+    assert.strictEqual(parseArgs(argv("-l", "20")).length, 20);
+    assert.strictEqual(parseArgs(argv("--length", "20")).length, 20);
+    assert.strictEqual(parseArgs(argv("-q")).quiet, true);
+    assert.strictEqual(parseArgs(argv("--quiet")).quiet, true);
+    assert.strictEqual(parseArgs(argv("-n")).includeNumbers, false);
+    assert.strictEqual(parseArgs(argv("-s")).includeSymbols, false);
+    assert.strictEqual(parseArgs(argv("-u")).includeUppercase, false);
+    assert.strictEqual(parseArgs(argv("-w")).includeLowercase, false);
+    assert.strictEqual(parseArgs(argv("-h")).showHelp, true);
+  });
+
+  test("strict integer parsing rejects trailing garbage", () => {
+    for (const bad of ["12foo", "", "-5", "1.5"]) {
+      assert.throws(() => parseArgs(argv("-l", bad)), /Must be an integer/, `"${bad}"`);
+    }
+  });
+
+  test("--length without a value", () => {
+    assert.throws(() => parseArgs(argv("-l")), /requires a number/);
+  });
+
+  test("length out of range", () => {
+    assert.throws(() => parseArgs(argv("-l", "0")), /out of range/);
+    assert.throws(() => parseArgs(argv("-l", "129")), /out of range/);
+  });
+
+  test("length boundaries accepted", () => {
+    assert.strictEqual(parseArgs(argv("-l", "1")).length, 1);
+    assert.strictEqual(parseArgs(argv("-l", "128")).length, 128);
+  });
+
+  test("unknown option rejected", () => {
+    assert.throws(() => parseArgs(argv("--lenght", "20")), /Unknown option/);
+  });
+});

@@ -57,6 +57,8 @@ npm run run-all
 ```
 
 ### Run tests
+Tests use the built-in `node:test` module, so there are no dependencies.
 ```bash
-npm test
+npm test           # Node: node --test
+bun run test:bun   # Bun: bun test
 ```
