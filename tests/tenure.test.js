@@ -103,3 +103,45 @@ describe("describe (local-day handling)", () => {
     });
   });
 });
+
+// --- CLI: run the script as a subprocess (under whichever runtime runs the tests) ---
+const { spawnSync } = require("node:child_process");
+const path = require("node:path");
+const SCRIPT = path.join(__dirname, "..", "tenure.js");
+const run = (...args) =>
+  spawnSync(process.execPath, [SCRIPT, ...args], { encoding: "utf8" });
+
+describe("CLI", () => {
+  test("no argument prints usage to stderr and exits 1", () => {
+    const r = run();
+    assert.strictEqual(r.status, 1);
+    assert.match(r.stderr, /^Usage: tenure\.js <YYYY-MM-DD>/);
+    assert.strictEqual(r.stdout, "");
+  });
+
+  for (const flag of ["-h", "--help"]) {
+    test(`${flag} prints usage to stdout and exits 0`, () => {
+      const r = run(flag);
+      assert.strictEqual(r.status, 0);
+      assert.match(r.stdout, /^Usage: tenure\.js <YYYY-MM-DD>/);
+    });
+  }
+
+  test("past date prints days since", () => {
+    const r = run("2020-07-06");
+    assert.strictEqual(r.status, 0);
+    assert.match(r.stdout, /^Days since 2020-07-06: \d+ days\n$/);
+  });
+
+  test("future date prints days until", () => {
+    const r = run("9999-12-31");
+    assert.strictEqual(r.status, 0);
+    assert.match(r.stdout, /^Days until 9999-12-31: \d+ days\n$/);
+  });
+
+  test("invalid date exits 1 with an error", () => {
+    const r = run("2023-02-30");
+    assert.strictEqual(r.status, 1);
+    assert.match(r.stderr, /not a valid calendar date/);
+  });
+});

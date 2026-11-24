@@ -4,7 +4,10 @@
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const DEFAULT_DATE = "2020-07-06";
+const USAGE = `Usage: tenure.js <YYYY-MM-DD>
+
+Print the number of days since (or until) the given date, counted
+against today's date in your local timezone.`;
 
 function getUTCMidnight(date) {
   return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
@@ -49,7 +52,15 @@ function describe(target, now = new Date()) {
 module.exports = { daysBetween, getUTCMidnight, localDayAsUTC, parseDate, describe };
 
 if (require.main === module) {
-  const input = process.argv[2] || DEFAULT_DATE;
+  const input = process.argv[2];
+  if (input === "-h" || input === "--help") {
+    console.log(USAGE);
+    process.exit(0);
+  }
+  if (input === undefined) {
+    console.error(USAGE);
+    process.exit(1);
+  }
   let target;
   try {
     target = parseDate(input);

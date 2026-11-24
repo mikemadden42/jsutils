@@ -24,7 +24,7 @@
     "newpass": "node newpass.js",
     "sysinfo": "node sysinfo.js",
     "tenure": "node tenure.js",
-    "run-all": "node newpass.js > /dev/null && node sysinfo.js && node tenure.js",
+    "run-all": "node newpass.js > /dev/null && node sysinfo.js && node tenure.js 2020-07-06",
     "test": "node --test",
     "test:bun": "bun test"
   }
