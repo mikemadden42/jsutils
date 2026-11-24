@@ -65,6 +65,15 @@ _The date is required; run with no arguments or `-h` to see usage._
 npm run run-all
 ```
 
+### Check formatting
+
+Formatting uses `bun fmt` with its defaults; CI runs the check.
+
+```bash
+bun fmt --check   # report files that need formatting
+bun fmt           # fix them
+```
+
 ### Run tests
 
 Tests use the built-in `node:test` module, so there are no dependencies.
