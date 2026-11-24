@@ -89,8 +89,14 @@ describe("summarizeCpus", () => {
 describe("live system", () => {
   test("getAvailableMem returns a positive byte count and known label", () => {
     const mem = getAvailableMem();
-    assert.ok(Number.isFinite(mem.bytes) && mem.bytes > 0, `bad bytes: ${mem.bytes}`);
-    assert.ok(["available", "free"].includes(mem.label), `bad label: ${mem.label}`);
+    assert.ok(
+      Number.isFinite(mem.bytes) && mem.bytes > 0,
+      `bad bytes: ${mem.bytes}`,
+    );
+    assert.ok(
+      ["available", "free"].includes(mem.label),
+      `bad label: ${mem.label}`,
+    );
   });
 
   test("printSysInfo prints a clean report", () => {

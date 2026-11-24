@@ -10,9 +10,11 @@ To run the npm scripts under Bun instead of Node, use `bun --bun run <script>`
 ## Utilities
 
 ### 1. Password Generator (`newpass.js`)
+
 Generates a secure, random password using `crypto.randomInt`.
 
 **Usage:**
+
 ```bash
 npm run newpass -- [options]
 # OR
@@ -20,6 +22,7 @@ node newpass.js [options]
 ```
 
 **Options:**
+
 - `-l, --length <number>`: Password length (1-128, default: 12; must be >= number of included character classes)
 - `-n, --no-numbers`: Exclude numbers
 - `-s, --no-symbols`: Exclude symbols
@@ -29,9 +32,11 @@ node newpass.js [options]
 - `-h, --help`: Display help
 
 ### 2. System Info (`sysinfo.js`)
+
 Displays information about the current system, including Node.js version, OS details, memory, network interfaces, and CPU info.
 
 **Usage:**
+
 ```bash
 npm run sysinfo
 # OR
@@ -39,25 +44,31 @@ node sysinfo.js
 ```
 
 ### 3. Tenure Calculator (`tenure.js`)
+
 Calculates the number of days between a given date and today.
 
 **Usage:**
+
 ```bash
 npm run tenure -- <YYYY-MM-DD>
 # OR
 node tenure.js <YYYY-MM-DD>
 ```
-*The date is required; run with no arguments or `-h` to see usage.*
+
+_The date is required; run with no arguments or `-h` to see usage._
 
 ## Development
 
 ### Run all utilities
+
 ```bash
 npm run run-all
 ```
 
 ### Run tests
+
 Tests use the built-in `node:test` module, so there are no dependencies.
+
 ```bash
 npm test           # Node: node --test
 bun run test:bun   # Bun: bun test

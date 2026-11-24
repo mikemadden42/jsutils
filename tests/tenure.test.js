@@ -1,6 +1,11 @@
 const { describe, test } = require("node:test");
 const assert = require("node:assert");
-const { daysBetween, getUTCMidnight, parseDate, describe: describeDate } = require("../tenure");
+const {
+  daysBetween,
+  getUTCMidnight,
+  parseDate,
+  describe: describeDate,
+} = require("../tenure");
 
 describe("getUTCMidnight", () => {
   test("zeroes out time-of-day", () => {
@@ -15,7 +20,12 @@ describe("daysBetween", () => {
   const cases = [
     ["one day apart", "2023-01-01", "2023-01-02", 1],
     ["same day", "2023-01-01", "2023-01-01", 0],
-    ["same calendar day, different times", "2023-01-01T00:00:00Z", "2023-01-01T23:59:59Z", 0],
+    [
+      "same calendar day, different times",
+      "2023-01-01T00:00:00Z",
+      "2023-01-01T23:59:59Z",
+      0,
+    ],
     ["year/month boundary", "2023-12-31", "2024-01-02", 2],
     ["leap February (2024)", "2024-02-28", "2024-03-01", 2],
     ["non-leap February (2023)", "2023-02-28", "2023-03-01", 1],
@@ -36,20 +46,42 @@ describe("daysBetween", () => {
 
 describe("parseDate", () => {
   test("accepts valid dates as UTC midnight", () => {
-    assert.strictEqual(parseDate("2020-07-06").toISOString(), "2020-07-06T00:00:00.000Z");
-    assert.strictEqual(parseDate("2024-02-29").toISOString(), "2024-02-29T00:00:00.000Z");
+    assert.strictEqual(
+      parseDate("2020-07-06").toISOString(),
+      "2020-07-06T00:00:00.000Z",
+    );
+    assert.strictEqual(
+      parseDate("2024-02-29").toISOString(),
+      "2024-02-29T00:00:00.000Z",
+    );
   });
 
   test("rejects bad formats", () => {
-    for (const bad of ["2020-7-6", "20200706", "2020/07/06", "", "2020-07-06T00:00:00Z"]) {
+    for (const bad of [
+      "2020-7-6",
+      "20200706",
+      "2020/07/06",
+      "",
+      "2020-07-06T00:00:00Z",
+    ]) {
       assert.throws(() => parseDate(bad), /Invalid date format/, `"${bad}"`);
     }
   });
 
   test("rejects impossible calendar dates", () => {
     // Date would silently roll these forward.
-    for (const bad of ["2023-02-29", "2023-02-30", "2023-04-31", "2023-13-01", "2023-00-10"]) {
-      assert.throws(() => parseDate(bad), /not a valid calendar date/, `"${bad}"`);
+    for (const bad of [
+      "2023-02-29",
+      "2023-02-30",
+      "2023-04-31",
+      "2023-13-01",
+      "2023-00-10",
+    ]) {
+      assert.throws(
+        () => parseDate(bad),
+        /not a valid calendar date/,
+        `"${bad}"`,
+      );
     }
   });
 });
@@ -74,9 +106,18 @@ describe("describe (local-day handling)", () => {
       // 2024-01-02T01:00Z is still Jan 1, 8 pm in New York.
       const now = new Date("2024-01-02T01:00:00Z");
       assert.strictEqual(now.getDate(), 1, "TZ override not applied");
-      assert.deepStrictEqual(describeDate(parseDate("2024-01-01"), now), { verb: "since", days: 0 });
-      assert.deepStrictEqual(describeDate(parseDate("2023-12-31"), now), { verb: "since", days: 1 });
-      assert.deepStrictEqual(describeDate(parseDate("2024-01-02"), now), { verb: "until", days: 1 });
+      assert.deepStrictEqual(describeDate(parseDate("2024-01-01"), now), {
+        verb: "since",
+        days: 0,
+      });
+      assert.deepStrictEqual(describeDate(parseDate("2023-12-31"), now), {
+        verb: "since",
+        days: 1,
+      });
+      assert.deepStrictEqual(describeDate(parseDate("2024-01-02"), now), {
+        verb: "until",
+        days: 1,
+      });
     });
   });
 
@@ -85,8 +126,14 @@ describe("describe (local-day handling)", () => {
       // 2024-01-01T20:00Z is already Jan 2, 5 am in Tokyo.
       const now = new Date("2024-01-01T20:00:00Z");
       assert.strictEqual(now.getDate(), 2, "TZ override not applied");
-      assert.deepStrictEqual(describeDate(parseDate("2024-01-01"), now), { verb: "since", days: 1 });
-      assert.deepStrictEqual(describeDate(parseDate("2024-01-02"), now), { verb: "since", days: 0 });
+      assert.deepStrictEqual(describeDate(parseDate("2024-01-01"), now), {
+        verb: "since",
+        days: 1,
+      });
+      assert.deepStrictEqual(describeDate(parseDate("2024-01-02"), now), {
+        verb: "since",
+        days: 0,
+      });
     });
   });
 
@@ -94,12 +141,24 @@ describe("describe (local-day handling)", () => {
     inTZ("America/New_York", () => {
       // US spring-forward was 2024-03-10 (23-hour day), fall-back 2024-11-03 (25 hours).
       const afterSpring = new Date(2024, 2, 10, 23, 30); // local time
-      assert.deepStrictEqual(describeDate(parseDate("2024-03-09"), afterSpring), { verb: "since", days: 1 });
-      assert.deepStrictEqual(describeDate(parseDate("2024-03-11"), afterSpring), { verb: "until", days: 1 });
+      assert.deepStrictEqual(
+        describeDate(parseDate("2024-03-09"), afterSpring),
+        { verb: "since", days: 1 },
+      );
+      assert.deepStrictEqual(
+        describeDate(parseDate("2024-03-11"), afterSpring),
+        { verb: "until", days: 1 },
+      );
 
       const afterFall = new Date(2024, 10, 3, 23, 30); // local time
-      assert.deepStrictEqual(describeDate(parseDate("2024-11-02"), afterFall), { verb: "since", days: 1 });
-      assert.deepStrictEqual(describeDate(parseDate("2024-01-01"), afterFall), { verb: "since", days: 307 });
+      assert.deepStrictEqual(describeDate(parseDate("2024-11-02"), afterFall), {
+        verb: "since",
+        days: 1,
+      });
+      assert.deepStrictEqual(describeDate(parseDate("2024-01-01"), afterFall), {
+        verb: "since",
+        days: 307,
+      });
     });
   });
 });

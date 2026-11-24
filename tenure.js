@@ -49,7 +49,13 @@ function describe(target, now = new Date()) {
   };
 }
 
-module.exports = { daysBetween, getUTCMidnight, localDayAsUTC, parseDate, describe };
+module.exports = {
+  daysBetween,
+  getUTCMidnight,
+  localDayAsUTC,
+  parseDate,
+  describe,
+};
 
 if (require.main === module) {
   const input = process.argv[2];
