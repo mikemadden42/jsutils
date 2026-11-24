@@ -18,7 +18,7 @@
   "private": true,
   "type": "commonjs",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "newpass": "node newpass.js",
