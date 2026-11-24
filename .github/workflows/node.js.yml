@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: ["main"]
 
+# Least privilege: the jobs only need to read the repo.
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,7 +41,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      # Bun runs node:test suites through its own runner (`bun test`),
+      # not `node --test`, so it has a dedicated script.
+      - run: bun run test:bun
       # --bun makes the "node" in package.json scripts resolve to Bun,
-      # so the same scripts are exercised under the Bun runtime.
-      - run: bun --bun run test
+      # so the CLIs themselves are exercised under the Bun runtime.
       - run: bun --bun run run-all
