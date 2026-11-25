@@ -116,6 +116,31 @@ stable   2.1.326
 latest   2.1.332
 ```
 
+### 7. Codex CLI Release Channels (`codex-versions.js`)
+
+Prints the Codex CLI version each release channel currently points at, read
+from the `tag_name` of the channel's release metadata on releases.openai.com.
+With no arguments it checks `latest` (the current stable release) and
+`prerelease` (the newest alpha). `prerelease` isn't documented and the
+official installer never reads it, so it may move or disappear. Errors and
+exit status work the same as `claude-code-versions.js`.
+
+Set `CODEX_RELEASES_BASE_URL` to use a different host or a mirror.
+
+**Usage:**
+
+```bash
+npm run codex-versions -- [CHANNEL...]
+# OR
+node codex-versions.js [CHANNEL...]
+```
+
+```text
+$ node codex-versions.js
+latest      0.172.0
+prerelease  0.174.0-alpha.5
+```
+
 ## Development
 
 ### Run all utilities
