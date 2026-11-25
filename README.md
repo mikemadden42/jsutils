@@ -92,6 +92,30 @@ cd ~/Downloads
 node ~/src/jsutils/add-hashes.js
 ```
 
+### 6. Claude Code Release Channels (`claude-code-versions.js`)
+
+Prints the Claude Code version each release channel currently points at,
+looked up from the public release bucket. With no arguments it checks
+`stable` and `latest`. Lookups run in parallel and print in argument order.
+An unknown or invalid channel prints an error to stderr and makes the exit
+status 1, but the remaining channels are still shown.
+
+Set `CLAUDE_CODE_RELEASES_BASE_URL` to use a different bucket or a mirror.
+
+**Usage:**
+
+```bash
+npm run claude-code-versions -- [CHANNEL...]
+# OR
+node claude-code-versions.js [CHANNEL...]
+```
+
+```text
+$ node claude-code-versions.js
+stable   2.1.326
+latest   2.1.332
+```
+
 ## Development
 
 ### Run all utilities

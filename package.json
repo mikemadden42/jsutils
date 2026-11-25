@@ -25,6 +25,7 @@
     "sysinfo": "node sysinfo.js",
     "tenure": "node tenure.js",
     "quakes": "node quakes.js",
+    "claude-code-versions": "node claude-code-versions.js",
     "run-all": "node newpass.js > /dev/null && node sysinfo.js && node tenure.js 2020-07-06",
     "test": "node --test",
     "test:bun": "bun test"
