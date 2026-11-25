@@ -57,6 +57,21 @@ node tenure.js <YYYY-MM-DD>
 
 _The date is required; run with no arguments or `-h` to see usage._
 
+### 4. Recent Earthquakes (`quakes.js`)
+
+Prints every seismic event (earthquakes, quarry blasts, ...) from the past day using the
+[USGS GeoJSON feed](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php),
+one per line: UTC time, event type, magnitude, place, and depth (km). Missing
+values print as `n/a`. Needs network access; times out after 10 seconds.
+
+**Usage:**
+
+```bash
+npm run quakes
+# OR
+node quakes.js
+```
+
 ## Development
 
 ### Run all utilities
