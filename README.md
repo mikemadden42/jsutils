@@ -141,6 +141,30 @@ latest      0.172.0
 prerelease  0.174.0-alpha.5
 ```
 
+### 8. Download Bun (`download-bun.js`)
+
+Downloads the latest stable [Bun release](https://github.com/oven-sh/bun/releases)
+for this operating system and CPU into the current directory, as
+`bun-v<version>-<target>.zip`, and checks its size and SHA-256 against what
+GitHub publishes. A download that fails or doesn't match is deleted, and a
+file that's already there and verified isn't downloaded again.
+
+It picks the same build as Bun's own installer: the musl build on musl Linux
+(e.g. Alpine), a `baseline` build on x64 CPUs without AVX2, and the native
+Apple silicon build when run from an x64 Node under Rosetta 2.
+
+GitHub allows 60 API requests an hour without signing in; set `GITHUB_TOKEN`
+to raise that. The token is only sent to the GitHub API, not to the download
+host. Like `add-hashes.js`, it works on the directory you run it from, so
+there's no npm script for it.
+
+**Usage:**
+
+```bash
+cd ~/Downloads
+node ~/src/jsutils/download-bun.js
+```
+
 ## Development
 
 ### Run all utilities
