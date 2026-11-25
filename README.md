@@ -72,6 +72,26 @@ npm run quakes
 node quakes.js
 ```
 
+### 5. Archive Checksums (`add-hashes.js`)
+
+Writes a `<name>.sha256` file next to each `.tar`, `.tgz`, `.txz` and `.zip`
+in the current directory that doesn't already have one. The files use the
+format `sha256sum` writes, so `sha256sum -c file.zip.sha256` verifies them.
+Existing `.sha256` files are left alone, so it's safe to re-run.
+
+A name containing a backslash or newline is written in GNU's escaped form,
+which macOS's built-in `sha256sum` can't read; use GNU `sha256sum`
+(`gsha256sum` from Homebrew coreutils) to verify those.
+
+It works on the directory you run it from, so there's no npm script for it.
+
+**Usage:**
+
+```bash
+cd ~/Downloads
+node ~/src/jsutils/add-hashes.js
+```
+
 ## Development
 
 ### Run all utilities
