@@ -91,9 +91,17 @@ describe("fetchQuakes", () => {
   });
 
   test("times out a request that never answers", async () => {
+    // AbortSignal.timeout() uses an unref'd timer, so on its own it won't
+    // keep the event loop alive; Node 22's test runner then cancels the
+    // test before the timeout fires. A real request holds an open socket,
+    // so stand in for it with a ref'd timer until the abort arrives.
     const hang = (url, { signal }) =>
       new Promise((_, reject) => {
-        signal.addEventListener("abort", () => reject(signal.reason));
+        const socket = setInterval(() => {}, 1000);
+        signal.addEventListener("abort", () => {
+          clearInterval(socket);
+          reject(signal.reason);
+        });
       });
     await assert.rejects(
       fetchQuakes({ fetchImpl: hang, timeoutMs: 20 }),
